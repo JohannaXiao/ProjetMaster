@@ -13,6 +13,7 @@ abstract class Node {
 
   abstract void onMessageEvent(MessageEvent messageEvent, Simulation simulation);
 
+//  判断该节点是否完成Proposal，已经完成了即output！=null（有proposal了）则返回true
   boolean hasTerminated() {
     return output != null;
   }

@@ -7,11 +7,13 @@ class Simulation {
   Simulation(Network network) {
     this.network = network;
   }
-
+// 广播信息，包括进行广播行为的源节点，需广播的信息， time 现在时间？
   void broadcast(Node source, Message message, double time) {
     for (Node destination : network.getNodes()) {
+//      latency为广播所需时间
       double latency = network.getLatency(source, destination);
       double arrivalTime = time + latency;
+//      记录传播消息事件（依据时间记录，该消息事件中包含 抵达时间，目标节点，消息内容，即针对目标节点的消息事件
       eventsByTime.add(new MessageEvent(arrivalTime, destination, message));
     }
   }
@@ -36,10 +38,11 @@ class Simulation {
    * @return whether the simulation completed within the time limit
    */
   boolean run(double timeLimit) {
+//    类似启动每个节点，将其设置为开始状态
     for (Node node : network.getNodes()) {
       node.onStart(this);
     }
-
+//  在传播阶段添加了许多事件，要逐个推出
     while (!eventsByTime.isEmpty()) {
       Event event = eventsByTime.pollFirst();
       // 若该event时间大于限制时间，return false

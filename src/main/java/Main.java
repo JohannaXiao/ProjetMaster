@@ -108,6 +108,7 @@ public class Main {
 
   private static Optional<DoubleSummaryStatistics> runAlgorand(
       double initialTimeout, int correctNodeCount, int failedNodeCout) {
+    //    随机生成好节点和坏节点
     Random random = new Random();
     List<Node> nodes = new ArrayList<>();
     for (int i = 0; i < correctNodeCount; ++i) {
@@ -118,6 +119,7 @@ public class Main {
       EarthPosition position = EarthPosition.randomPosition(random);
       nodes.add(new FailedNode(position));
     }
+    //    打乱节点顺序
     Collections.shuffle(nodes, random);
 
     Network network = new FullyConnectedNetwork(nodes, random);
