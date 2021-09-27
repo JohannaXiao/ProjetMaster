@@ -40,7 +40,7 @@ class CorrectTendermintNode extends Node {
         break;
       case PRE_COMMIT:
         ++cycle;
-        // Exponential backoff.
+        // Exponential backoff.指数退避/补偿
         timeout *= 2;
         beginProposal(simulation, time);
         break;
@@ -77,8 +77,10 @@ class CorrectTendermintNode extends Node {
     }
   }
 
+  //类似与Algorand里的startProposal
   private void beginProposal(Simulation simulation, double time) {
     protocolState = ProtocolState.PROPOSAL;
+    //    猜测此处equals是自反，只要括号内的值为非空，则返回true
     if (equals(simulation.getLeader(cycle))) {
       Proposal proposal = new Proposal();
       Message message = new ProposalMessage(cycle, proposal);
@@ -89,6 +91,7 @@ class CorrectTendermintNode extends Node {
 
   private void beginPreVote(Simulation simulation, double time) {
     protocolState = ProtocolState.PRE_VOTE;
+//    获得prevote的proposal，形成message并广播
     Message message = new PreVoteMessage(cycle, getProposalToPreVote(simulation));
     simulation.broadcast(this, message, time);
     resetTimeout(simulation, time);
@@ -98,6 +101,7 @@ class CorrectTendermintNode extends Node {
     // Find the latest proposal which had 2/3 pre-votes, if any. If there is one, then either that's
     // the proposal we're locked on, or we were locked on an older proposal, in which case that
     // proposal unlocks us. Either way, we're able to vote for that proposal.
+//    锁定最近的拥有2/3 pre-votes的proposal
     for (int prevCycle = cycle - 1; prevCycle >= 0; --prevCycle) {
       Set<Proposal> preVotedProposals = getCycleState(prevCycle).getPreVotedProposals(simulation);
       for (Proposal preVotedProposal : preVotedProposals) {
@@ -141,6 +145,11 @@ class CorrectTendermintNode extends Node {
     return getCycleState(cycle);
   }
 
+  /* putIfAbsent If the specified key is not already associated with
+  a value (or is mapped to null) associates it with the given value and returns null,
+  else returns the current value.*/
+//    cyclestate是一个map，用putIfAbsent判断是否null，null则安排一个空CycleState
+//    即此处返回对应 cycle数的CycleState
   private CycleState getCycleState(int c) {
     cycleStates.putIfAbsent(c, new CycleState());
     return cycleStates.get(c);
@@ -155,16 +164,17 @@ class CorrectTendermintNode extends Node {
     final Set<Proposal> proposals = new HashSet<>();
     final Map<Proposal, Integer> preVoteCounts = new HashMap<>();
     final Map<Proposal, Integer> preCommitCounts = new HashMap<>();
-
+    //  获得投票数大于最小值（quorumSize（））的proposal集合
     Set<Proposal> getPreVotedProposals(Simulation simulation) {
       return Util.keysWithMinCount(preVoteCounts, quorumSize(simulation));
     }
-
+    //  获得投票数大于最小值（quorumSize（））的proposal集合
     Set<Proposal> getCommittedProposals(Simulation simulation) {
       return Util.keysWithMinCount(preCommitCounts, quorumSize(simulation));
     }
   }
 
+//  类似Phase
   private enum ProtocolState {
     PROPOSAL, PRE_VOTE, PRE_COMMIT
   }

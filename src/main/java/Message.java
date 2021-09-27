@@ -95,3 +95,5 @@ class CommitVoteMessage extends MirVoteMessage {
     super(cycle, round, proposal);
   }
 }
+
+/* A PBFT pre-prepare message */
