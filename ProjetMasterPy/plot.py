@@ -20,7 +20,7 @@ with open(fileName) as f:
 
     initial_timeout,tendermint,algorand,pbft = [],[],[],[]
     mir=[]
-
+    print(11111)
     for row in reader:
         # initial_timeout.append(float(0) if np.isnan(row[0]) else float(row[0]))
         # tendermint.append(float(0) if np.isnan(row[1]) else float(row[1]))
