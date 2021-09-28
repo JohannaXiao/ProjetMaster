@@ -13,14 +13,13 @@ import numpy as np
 import csv
 from matplotlib import pyplot as plt
 
-fileName = 'data_20210928_1712.csv'
+fileName = 'data_20210928_2046.csv'
 with open(fileName) as f:
     reader = csv.reader(f)
     header_row = next(reader)
 
     initial_timeout,tendermint,algorand,pbft = [],[],[],[]
     mir=[]
-    print(11111)
     for row in reader:
         # initial_timeout.append(float(0) if np.isnan(row[0]) else float(row[0]))
         # tendermint.append(float(0) if np.isnan(row[1]) else float(row[1]))
@@ -36,10 +35,9 @@ with open(fileName) as f:
             tendermint.append(float(0) if row[1].isspace() else float(row[1]))
             algorand.append(float(0) if row[2].isspace() else float(row[2]))
             mir.append(float(0) if row[3].isspace() else float(row[3]))
-            pbft.append(float(0) if row[3].isspace() else float(row[3]))
+            pbft.append(float(0) if row[4].isspace() else float(row[4]))
         # else:
         #     break
-    print(initial_timeout)
 
     fig = plt.figure(dpi=128, figsize=(10, 6))
     plt.plot(initial_timeout,tendermint,label='tendermint')
