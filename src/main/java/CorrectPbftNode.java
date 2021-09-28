@@ -32,15 +32,18 @@ public class CorrectPbftNode extends Node {
 
         switch (protocolState) {
             case PROPOSAL:
-                beginPreVote(simulation, time);
+                beginPrePrepare(simulation, time);
                 break;
-            case PRE_VOTE:
-                beginPreCommit(simulation, time);
+            case PRE_PREPARE:
+                beginPrepare(simulation, time);
                 break;
-            case PRE_COMMIT:
+            case PREPARE:
+                beginCommit(simulation, time);
+            case COMMIT:
                 ++cycle;
                 // Exponential backoff.指数退避/补偿
-                timeout *= 2;
+                //TODO:这里的Exponential backoff不知道对PBFT需不需要
+//                timeout *= 2;
                 beginProposal(simulation, time);
                 break;
             default:
@@ -60,10 +63,12 @@ public class CorrectPbftNode extends Node {
 
         if (message instanceof ProposalMessage) {
             cycleState.proposals.add(message.getProposal());
-        } else if (message instanceof PreVoteMessage) {
-            cycleState.preVoteCounts.merge(message.getProposal(), 1, Integer::sum);
-        } else if (message instanceof PreCommitMessage) {
-            cycleState.preCommitCounts.merge(message.getProposal(), 1, Integer::sum);
+        } else if (message instanceof PrePreareMessage) {
+            cycleState.prePrepareCounts.merge(message.getProposal(), 1, Integer::sum);
+        } else if (message instanceof PrepareMessage) {
+            cycleState.prepareCounts.merge(message.getProposal(), 1, Integer::sum);
+        } else if (message instanceof CommitMessage) {
+            cycleState.commitCounts.merge(message.getProposal(),1,Integer::sum);
             Set<Proposal> committedProposals = cycleState.getCommittedProposals(simulation);
             if (!committedProposals.isEmpty()) {
                 Proposal committedProposal = committedProposals.iterator().next();
@@ -88,24 +93,24 @@ public class CorrectPbftNode extends Node {
         resetTimeout(simulation, time);
     }
 
-    private void beginPreVote(Simulation simulation, double time) {
-        protocolState = CorrectPbftNode.ProtocolState.PRE_VOTE;
+    private void beginPrePrepare(Simulation simulation, double time) {
+        protocolState = CorrectPbftNode.ProtocolState.PRE_PREPARE;
 //    获得prevote的proposal，形成message并广播
-        Message message = new PreVoteMessage(cycle, getProposalToPreVote(simulation));
+        Message message = new PrePreareMessage(cycle, getProposalToPrePrepare(simulation));
         simulation.broadcast(this, message, time);
         resetTimeout(simulation, time);
     }
 
-    private Proposal getProposalToPreVote(Simulation simulation) {
+    private Proposal getProposalToPrePrepare(Simulation simulation) {
         // Find the latest proposal which had 2/3 pre-votes, if any. If there is one, then either that's
         // the proposal we're locked on, or we were locked on an older proposal, in which case that
         // proposal unlocks us. Either way, we're able to vote for that proposal.
 //    锁定最近的拥有2/3 pre-votes的proposal
         for (int prevCycle = cycle - 1; prevCycle >= 0; --prevCycle) {
-            Set<Proposal> preVotedProposals = getCycleState(prevCycle).getPreVotedProposals(simulation);
-            for (Proposal preVotedProposal : preVotedProposals) {
-                if (preVotedProposal != null) {
-                    return preVotedProposal;
+            Set<Proposal> prePreparedProposals = getCycleState(prevCycle).getPrePreparedProposals(simulation);
+            for (Proposal prePreparedProposal : prePreparedProposals) {
+                if (prePreparedProposal != null) {
+                    return prePreparedProposal;
                 }
             }
         }
@@ -121,18 +126,32 @@ public class CorrectPbftNode extends Node {
         }
     }
 
-    private void beginPreCommit(Simulation simulation, double time) {
-        protocolState = CorrectPbftNode.ProtocolState.PRE_COMMIT;
-        Set<Proposal> preVotedProposals = getCurrentCycleState().getPreVotedProposals(simulation);
+    private void beginPrepare(Simulation simulation, double time) {
+        protocolState = CorrectPbftNode.ProtocolState.PREPARE;
+        Set<Proposal> prePreparedProposals = getCurrentCycleState().getPrePreparedProposals(simulation);
         Message message;
-        if (preVotedProposals.isEmpty()) {
-            message = new PreCommitMessage(cycle, null);
+        if (prePreparedProposals.isEmpty()) {
+            message = new PrepareMessage(cycle, null);
         } else {
-            Proposal proposal = preVotedProposals.iterator().next();
-            message = new PreCommitMessage(cycle, proposal);
+            Proposal proposal = prePreparedProposals.iterator().next();
+            message = new PrepareMessage(cycle, proposal);
         }
         simulation.broadcast(this, message, time);
         resetTimeout(simulation, time);
+    }
+
+    private void beginCommit(Simulation simulation, double time) {
+        protocolState = CorrectPbftNode.ProtocolState.COMMIT;
+        Set<Proposal> PreparedProposals = getCurrentCycleState().getPreparedProposals(simulation);
+        Message message;
+        if (PreparedProposals.isEmpty()) {
+            message = new CommitMessage(cycle, null);
+        } else {
+            Proposal proposal = PreparedProposals.iterator().next();
+            message = new CommitMessage(cycle, proposal);
+        }
+        simulation.broadcast(this,message,time);
+        resetTimeout(simulation,time);
     }
 
     private void resetTimeout(Simulation simulation, double time) {
@@ -161,21 +180,25 @@ public class CorrectPbftNode extends Node {
 
     private class CycleState {
         final Set<Proposal> proposals = new HashSet<>();
-        final Map<Proposal, Integer> preVoteCounts = new HashMap<>();
-        final Map<Proposal, Integer> preCommitCounts = new HashMap<>();
+        final Map<Proposal, Integer> prePrepareCounts = new HashMap<>();
+        final Map<Proposal, Integer> prepareCounts = new HashMap<>();
+        final Map<Proposal, Integer> commitCounts = new HashMap<>();
         //  获得投票数大于最小值（quorumSize（））的proposal集合
-        Set<Proposal> getPreVotedProposals(Simulation simulation) {
-            return Util.keysWithMinCount(preVoteCounts, quorumSize(simulation));
+        Set<Proposal> getPrePreparedProposals(Simulation simulation) {
+            return Util.keysWithMinCount(prePrepareCounts, quorumSize(simulation));
+        }
+        Set<Proposal> getPreparedProposals(Simulation simulation) {
+            return Util.keysWithMinCount(prepareCounts, quorumSize(simulation));
         }
         //  获得投票数大于最小值（quorumSize（））的proposal集合
         Set<Proposal> getCommittedProposals(Simulation simulation) {
-            return Util.keysWithMinCount(preCommitCounts, quorumSize(simulation));
+            return Util.keysWithMinCount(commitCounts, quorumSize(simulation));
         }
     }
 
     //  类似Phase
     private enum ProtocolState {
-        PROPOSAL, PRE_VOTE, PRE_COMMIT
+        PROPOSAL, PRE_PREPARE, PREPARE, COMMIT
     }
 }
 

@@ -97,3 +97,33 @@ class CommitVoteMessage extends MirVoteMessage {
 }
 
 /* A PBFT pre-prepare message */
+class PrePreareMessage extends Message {
+  PrePreareMessage(int cycle, Proposal proposal) {
+    super(cycle, proposal);
+  }
+
+  @Override public String toString() {
+    return String.format("PrePrepareMessage[cycle=%d, proposal=%s]", getCycle(), getProposal());
+  }
+}
+/* A PBFT prepare message */
+class PrepareMessage extends Message {
+  PrepareMessage(int cycle, Proposal proposal) {
+    super(cycle, proposal);
+  }
+
+  @Override public String toString() {
+    return String.format("PrepareMessage[cycle=%d, proposal=%s]", getCycle(), getProposal());
+  }
+}
+
+/* A PBFT commit message */
+class CommitMessage extends Message {
+  CommitMessage(int cycle, Proposal proposal) {
+    super(cycle, proposal);
+  }
+
+  @Override public String toString() {
+    return String.format("CommitMessage[cycle=%d, proposal=%s]", getCycle(), getProposal());
+  }
+}
