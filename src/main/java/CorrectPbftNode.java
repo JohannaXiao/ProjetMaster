@@ -3,7 +3,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class CorrectPbftNode extends Node {
+class CorrectPbftNode extends Node {
     private int cycle = 0;
     private Map<Integer, CorrectPbftNode.CycleState> cycleStates = new HashMap<>();
     private CorrectPbftNode.ProtocolState protocolState;
