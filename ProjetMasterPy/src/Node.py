@@ -49,3 +49,14 @@ class Node:
 
     def getTerminationTime(self):
         return self.terminationTime
+
+class FailedNode(Node):
+    def __init__(self,position):
+        super().__init__(position)
+
+    def onStart(self, simulation):
+        pass
+    def onTimerEvent(self, timerEvent, simulation):
+        pass
+    def onMessageEvent(self, messageEvent, simulation):
+        pass

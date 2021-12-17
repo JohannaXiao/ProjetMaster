@@ -41,7 +41,7 @@ class FullyConnectedNetwork(Network):
     rand =random.seed()
 
     def __init__(self, nodes,rand):
-        super(FullyConnectedNetwork,self).__init__(nodes)
+        super().__init__(nodes)
         self.rand = rand
 
     def getLatency(self,source,destination):

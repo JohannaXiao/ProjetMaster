@@ -44,16 +44,16 @@ class Event:
             return np.sign(delta)
 
 
-class TimeEvent(Event):
+class TimerEvent(Event):
     def __init__(self, time, subject):
-        super(TimeEvent, self).__init__(time, subject)
+        super().__init__(time, subject)
 
 
 class MessageEvent(Event):
     message = Message()
 
     def __init__(self, time, subject, message):
-        super(MessageEvent, self).__init__(time, subject)
+        super().__init__(time, subject)
         self.message = message
 
     def getMessage(self):
