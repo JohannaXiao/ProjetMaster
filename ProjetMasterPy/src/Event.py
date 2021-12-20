@@ -20,8 +20,14 @@ class Event:
         self.subject = subject
 
     # 可比较大小
+    def __eq__(self, other):
+        return self.time==self.time and self.subject==other.subject
+
     def __lt__(self, other):
         return self.time < other.time
+
+    def __hash__(self):
+        return hash((self.time,self.subject))
 
     def getTime(self):
         return self.time
@@ -50,7 +56,6 @@ class TimerEvent(Event):
 
 
 class MessageEvent(Event):
-    message = Message()
 
     def __init__(self, time, subject, message):
         super().__init__(time, subject)

@@ -8,7 +8,7 @@ author: Johanna Xiao Xuewen
 '''
 import math
 import random
-import Vector3d
+from Vector3d import Vector3d
 
 EARTH_RADIUS = 6.378e6
 class EarthPosition:
@@ -19,6 +19,12 @@ class EarthPosition:
     def __eq__(self, other):
         return self.direction == other.direction
 
+    def __lt__(self, other):
+        return self.direction<other.direction
+
+    def __hash__(self):
+        return hash(self.direction)
+
 #   The great-circle distance to another earth position, in meters.
     def getDistance(self,node):
         product = self.direction.dotProduct(node.direction)
@@ -27,21 +33,26 @@ class EarthPosition:
         product =min(product,1)
         centralAngle = math.acos(product)
 
-        if centralAngle is None:
+        if not centralAngle:
             print("acos returned NaN")
         return EARTH_RADIUS * centralAngle
 
 
-    def nextDouble(self, rand,min, max):
-        rand = random.seed(rand)
-        return min+rand.nextDouble()*(max-min)
+    def nextDouble(self,min,max):
+        # 设置随机种子
+        # random.seed(seed)
+        rand = random.random()
+        return min+rand*(max-min)
 
-    def randomPosition(self,rand):
+    def randomPosition(self):
         while True:
-            x = self.nextDouble(rand,-1,1)
-            y = self.nextDouble(rand,-1,1)
-            z = self.nextDouble(rand,-1,1)
-            point = Vector3d(x,y,z)
-            if point.norm()<=-1:
-                return point.normalized()
+            # x = self.nextDouble(seed,-1,1)
+            # y = self.nextDouble(seed,-1,1)
+            # z = self.nextDouble(seed,-1,1)
+            x = self.nextDouble(-1,1)
+            y = self.nextDouble(-1,1)
+            z = self.nextDouble(-1,1)
+            self.direction = Vector3d(x,y,z)
+            if self.direction.norm()<=1:
+                return self.direction.normalized()
 

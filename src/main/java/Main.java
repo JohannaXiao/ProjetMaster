@@ -27,57 +27,57 @@ public class Main {
           mirOverallStats = new DoubleSummaryStatistics(),
           pbftOverallStats = new DoubleSummaryStatistics();
       for (int i = 0; i < SAMPLES; ++i) {
-        Optional<DoubleSummaryStatistics> tendermintStats =
-            runTendermint(initalTimeout, 90, 10);
-        Optional<DoubleSummaryStatistics> algorandStats =
-            runAlgorand(initalTimeout, 90, 10);
-        Optional<DoubleSummaryStatistics> mirStats =
-            runMir(initalTimeout, 90, 10);
+//        Optional<DoubleSummaryStatistics> tendermintStats =
+//            runTendermint(initalTimeout, 90, 10);
+//        Optional<DoubleSummaryStatistics> algorandStats =
+//            runAlgorand(initalTimeout, 90, 10);
+//        Optional<DoubleSummaryStatistics> mirStats =
+//            runMir(initalTimeout, 90, 10);
         Optional<DoubleSummaryStatistics> pbftStats =
-                runPbft(initalTimeout, 90, 10);
+                runPbft(initalTimeout, 4, 1);
 
-        tendermintStats.ifPresent(tendermintOverallStats::combine);
-        algorandStats.ifPresent(algorandOverallStats::combine);
-        mirStats.ifPresent(mirOverallStats::combine);
+//        tendermintStats.ifPresent(tendermintOverallStats::combine);
+//        algorandStats.ifPresent(algorandOverallStats::combine);
+//        mirStats.ifPresent(mirOverallStats::combine);
         pbftStats.ifPresent(pbftOverallStats::combine);
       }
 
-      if (tendermintOverallStats.getCount() > 0 &&
-          tendermintOverallStats.getAverage() < tendermintBestLatency) {
-        tendermintBestLatency = tendermintOverallStats.getAverage();
-        tendermintBestTimeout = initalTimeout;
-      }
-      if (algorandOverallStats.getCount() > 0 &&
-          algorandOverallStats.getAverage() < algorandBestLatency) {
-        algorandBestLatency = algorandOverallStats.getAverage();
-        algorandBestTimeout = initalTimeout;
-      }
-      if (mirOverallStats.getCount() > 0 &&
-          mirOverallStats.getAverage() < mirBestLatency) {
-        mirBestLatency = mirOverallStats.getAverage();
-        mirBestTimeout = initalTimeout;
-      }
+//      if (tendermintOverallStats.getCount() > 0 &&
+//          tendermintOverallStats.getAverage() < tendermintBestLatency) {
+//        tendermintBestLatency = tendermintOverallStats.getAverage();
+//        tendermintBestTimeout = initalTimeout;
+//      }
+//      if (algorandOverallStats.getCount() > 0 &&
+//          algorandOverallStats.getAverage() < algorandBestLatency) {
+//        algorandBestLatency = algorandOverallStats.getAverage();
+//        algorandBestTimeout = initalTimeout;
+//      }
+//      if (mirOverallStats.getCount() > 0 &&
+//          mirOverallStats.getAverage() < mirBestLatency) {
+//        mirBestLatency = mirOverallStats.getAverage();
+//        mirBestTimeout = initalTimeout;
+//      }
       if (pbftOverallStats.getCount() > 0 &&
               pbftOverallStats.getAverage() < pbftBestLatency) {
         pbftBestLatency = pbftOverallStats.getAverage();
         pbftBestTimeout = initalTimeout;
       }
 
-      System.out.printf("%.2f, %s, %s, %s, %s,\n",
+      System.out.printf("%.2f, %s,\n",
           initalTimeout,
-          tendermintOverallStats.getCount() > 0 ? tendermintOverallStats.getAverage() : "",
-          algorandOverallStats.getCount() > 0 ? algorandOverallStats.getAverage() : "",
-          mirOverallStats.getCount() > 0 ? mirOverallStats.getAverage() : "",
+//          tendermintOverallStats.getCount() > 0 ? tendermintOverallStats.getAverage() : "",
+//          algorandOverallStats.getCount() > 0 ? algorandOverallStats.getAverage() : "",
+//          mirOverallStats.getCount() > 0 ? mirOverallStats.getAverage() : "",
           pbftOverallStats.getCount() > 0 ? pbftOverallStats.getAverage() : "");
     }
 
     System.out.println();
-    System.out.printf("Tendermint best with timeout %.2f: %.4f\n",
-        tendermintBestTimeout, tendermintBestLatency);
-    System.out.printf("Algorand best with timeout %.2f: %.4f\n",
-        algorandBestTimeout, algorandBestLatency);
-    System.out.printf("Mir best with timeout %.2f: %.4f\n",
-            mirBestTimeout, mirBestLatency);
+//    System.out.printf("Tendermint best with timeout %.2f: %.4f\n",
+//        tendermintBestTimeout, tendermintBestLatency);
+//    System.out.printf("Algorand best with timeout %.2f: %.4f\n",
+//        algorandBestTimeout, algorandBestLatency);
+//    System.out.printf("Mir best with timeout %.2f: %.4f\n",
+//            mirBestTimeout, mirBestLatency);
     System.out.printf("pbft best with timeout %.2f: %.4f\n",
         pbftBestTimeout, pbftBestLatency);
 //    System.out.printf("Mir best with timeout %.2f: %.4f\n",
