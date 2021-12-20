@@ -39,7 +39,7 @@ def runPbft(initialTimeout, correctNodeCount, failedNodeCount):
         nodes.append(FailedNode(position))
 
     random.shuffle(nodes)
-    network = FullyConnectedNetwork(nodes, rand)
+    network = FullyConnectedNetwork(nodes)
     # eventBytime = OrderedSet()
     simulation = Simulation(network)
     if not simulation.run(TIME_LIMIT):
@@ -75,14 +75,14 @@ if __name__ == '__main__':
     pbftBestTimeout = 0
     pbftOveralStats = []
     # nodes = []
-    for initialTimeout in np.arange(0.01, 0.41, 0.01):
+    for initialTimeout in np.arange(0.01, 0.4, 0.01):
 
         for i in range(SAMPLES):
             pbftStats = runPbft(initialTimeout, 4, 1)
             if pbftStats:
                 pbftOveralStats.extend(pbftStats)
                 # print(pbftStats)
-        if len(pbftOveralStats) > 0 and np.mean(pbftOveralStats) < pbftBestLatency:
+        if pbftOveralStats and np.mean(pbftOveralStats) < pbftBestLatency:
             pbftBestLatency = np.mean(pbftOveralStats)
             pbftBestTimeout = initialTimeout
 

@@ -51,7 +51,7 @@ class CorrectPbftNode(Node.Node):
             # 不知道此处是否需要
             #  Exponential backoff.指数退避 / 补偿
             # TODO: 这里的Exponential backoff不知道对PBFT需不需要
-            # self.timeout *= 2
+            self.timeout *= 2
             self.beginProposal(simulation, time)
         else:
             raise AssertionError("Unexpected protocol state")

@@ -21,7 +21,11 @@ public class Main {
     double mirBestLatency = Double.MAX_VALUE, mirBestTimeout = 0;
     double pbftBestLatency = Double.MAX_VALUE, pbftBestTimeout = 0;
 
-    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
+    int NumNodes=100;
+    double initalTimeout = 0.1;
+
+    for (int faliednode = 0; faliednode <= NumNodes; faliednode += 1) {
+//    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
       DoubleSummaryStatistics tendermintOverallStats = new DoubleSummaryStatistics(),
           algorandOverallStats = new DoubleSummaryStatistics(),
           mirOverallStats = new DoubleSummaryStatistics(),
@@ -34,7 +38,7 @@ public class Main {
 //        Optional<DoubleSummaryStatistics> mirStats =
 //            runMir(initalTimeout, 90, 10);
         Optional<DoubleSummaryStatistics> pbftStats =
-                runPbft(initalTimeout, 4, 1);
+                runPbft(initalTimeout,  NumNodes-faliednode, faliednode);
 
 //        tendermintStats.ifPresent(tendermintOverallStats::combine);
 //        algorandStats.ifPresent(algorandOverallStats::combine);
@@ -63,8 +67,9 @@ public class Main {
         pbftBestTimeout = initalTimeout;
       }
 
-      System.out.printf("%.2f, %s,\n",
-          initalTimeout,
+      System.out.printf("%d, %s,\n",
+            faliednode,
+//          initalTimeout,
 //          tendermintOverallStats.getCount() > 0 ? tendermintOverallStats.getAverage() : "",
 //          algorandOverallStats.getCount() > 0 ? algorandOverallStats.getAverage() : "",
 //          mirOverallStats.getCount() > 0 ? mirOverallStats.getAverage() : "",
@@ -78,8 +83,8 @@ public class Main {
 //        algorandBestTimeout, algorandBestLatency);
 //    System.out.printf("Mir best with timeout %.2f: %.4f\n",
 //            mirBestTimeout, mirBestLatency);
-    System.out.printf("pbft best with timeout %.2f: %.4f\n",
-        pbftBestTimeout, pbftBestLatency);
+//    System.out.printf("pbft best with timeout %.2f: %.4f\n",
+//        pbftBestTimeout, pbftBestLatency);
 //    System.out.printf("Mir best with timeout %.2f: %.4f\n",
 //            mirBestTimeout, mirBestLatency);
 //    double secondBestLatency = Math.min(tendermintBestLatency, algorandBestLatency);

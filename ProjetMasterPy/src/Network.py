@@ -44,11 +44,11 @@ A network in which all nodes are directly connected through a fiber optic cable,
 class FullyConnectedNetwork(Network):
     rand = random.random()
 
-    def __init__(self, nodes, rand):
+    def __init__(self, nodes):
         super().__init__(nodes)
-        self.rand = rand
+        # self.rand = rand
 
     def getLatency(self, source, destination):
-        baseCaseLatency = source.getDistance(destination) / SPEED_OF_LIGHT;
-        multiplier = 1 + random.uniform(0, 1)
+        baseCaseLatency = source.getDistance(destination) / SPEED_OF_LIGHT
+        multiplier = 1 + random.random()
         return multiplier * baseCaseLatency
