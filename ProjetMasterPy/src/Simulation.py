@@ -8,7 +8,7 @@ author: Johanna Xiao Xuewen
 '''
 
 import Node
-import Network
+from Network import *
 import Message
 from Event import *
 from ordered_set import OrderedSet
@@ -19,15 +19,17 @@ class Simulation:
     eventByTime = OrderedSet()
 
     def __init__(self, network):
-        self.network = network
-        # self.eventByTime = eventByTime
+        self.network = network  # self.eventByTime = eventByTime
 
     def broadcast(self, source, message, time):
         for destination in self.network.getNodes():
-            latency = self.network.getLatency(source, destination)
+            # print("time = %.5f" % time)
+            latency = getLatency(source, destination)
+            # print("latency = %.5f" % latency)
             arrivalTime = time + latency
+            # print("time = %.5f, latency = %.5f, arrivalTime = %.5f" % (time,latency,arrivalTime))
             self.eventByTime.add(MessageEvent(arrivalTime, destination, message))
-            self.eventByTime = OrderedSet(sorted(list(self.eventByTime),reverse=True))
+            self.eventByTime = OrderedSet(sorted(list(self.eventByTime), reverse=True))
 
     def getNetwork(self):
         return self.network
@@ -37,7 +39,7 @@ class Simulation:
 
     def scheduleEvent(self, event):
         self.eventByTime.add(event)
-        self.eventByTime = OrderedSet(sorted(list(self.eventByTime),reverse=True))
+        self.eventByTime = OrderedSet(sorted(list(self.eventByTime), reverse=True))
 
     '''
       * Run until all events have been processed, including any newly added events which may be added

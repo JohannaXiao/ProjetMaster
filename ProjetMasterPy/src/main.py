@@ -28,14 +28,12 @@ def runPbft(initialTimeout, correctNodeCount, failedNodeCount):
     rand = random.random()
     nodes = []
     for i in range(correctNodeCount):
-        position = EarthPosition.EarthPosition(Vector3d(0, 0, 0))
-        position.randomPosition()
+        position = EarthPosition.EarthPosition(randomPosition())
         # CorrectPbftNode(position, initialTimeout)
         nodes.append(CorrectPbftNode(position, initialTimeout))
 
     for i in range(failedNodeCount):
-        position = EarthPosition.EarthPosition(Vector3d(0, 0, 0))
-        position.randomPosition()
+        position = EarthPosition.EarthPosition(randomPosition())
         nodes.append(FailedNode(position))
 
     random.shuffle(nodes)

@@ -84,8 +84,9 @@ class CorrectPbftNode(Node.Node):
             committedProposals = cycleState.getCommittedProposals(self, simulation)
             if committedProposals:
                 committedProposal = committedProposals.pop()
-                if committedProposal is not None:
+                if committedProposal:
                     self.terminate(committedProposal, time)
+                    print("terminatedTime = %.10f" %time)
         else:
             raise AssertionError("Unexpected message: " + message)
 

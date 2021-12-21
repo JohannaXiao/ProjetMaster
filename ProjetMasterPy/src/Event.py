@@ -21,7 +21,10 @@ class Event:
 
     # 可比较大小
     def __eq__(self, other):
-        return self.time==self.time and self.subject==other.subject
+        self_utf = str(self).encode("utf-8")
+        other_utf = str(other).encode("utf-8")
+        return (self.time==self.time and self.subject==other.subject) \
+               and hashCode(self_utf.decode("utf-8"))- hashCode(other_utf.decode("utf-8"))
 
     def __lt__(self, other):
         return self.time < other.time
@@ -70,5 +73,5 @@ def hashCode(s):
     seed = 31
     h = 0
     for c in s:
-        h = np.int32(seed * h) + ord(c)
+        h = np.float64(seed * h) + ord(c)
     return h

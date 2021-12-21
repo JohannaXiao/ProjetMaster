@@ -43,7 +43,7 @@ public class CorrectPbftNode extends Node {
                 ++cycle;
                 // Exponential backoff.指数退避/补偿
                 //TODO:这里的Exponential backoff不知道对PBFT需不需要
-//                timeout *= 2;
+                timeout *= 2;
                 beginProposal(simulation, time);
                 break;
             default:

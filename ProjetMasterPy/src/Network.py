@@ -9,7 +9,7 @@ author: Johanna Xiao Xuewen
 
 import random
 import abc
-import Node
+from utils import *
 
 SPEED_OF_LIGHT = 299792458.0
 
@@ -45,10 +45,10 @@ class FullyConnectedNetwork(Network):
     rand = random.random()
 
     def __init__(self, nodes):
-        super().__init__(nodes)
-        # self.rand = rand
+        super().__init__(nodes)  # self.rand = rand
 
-    def getLatency(self, source, destination):
-        baseCaseLatency = source.getDistance(destination) / SPEED_OF_LIGHT
-        multiplier = 1 + random.random()
-        return multiplier * baseCaseLatency
+def getLatency(source, destination):
+    baseCaseLatency = getDistance(source,destination) / SPEED_OF_LIGHT
+    multiplier = 1 + random.random()
+    # print("distance = %.5f" % getDistance(source,destination))
+    return multiplier * baseCaseLatency

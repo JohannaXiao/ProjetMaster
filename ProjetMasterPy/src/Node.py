@@ -22,16 +22,13 @@ class Node(object):
     position = None
 
     def __init__(self, position):
-        self.position = position
-        # print('使用了equal函数的对象的id',id(self))
-        # self.output =output
-        # self.terminationTime=terminationTime
+        self.position = position  # print('使用了equal函数的对象的id',id(self))  # self.output =output  # self.terminationTime=terminationTime
 
     def __eq__(self, other):
         return self.position == other.position
 
     def __lt__(self, other):
-        return self.terminationTime<other.terminationTime
+        return self.terminationTime < other.terminationTime
 
     def __hash__(self):
         return hash(self.position)
@@ -51,23 +48,24 @@ class Node(object):
     def hasTerminated(self):
         return self.output is not None
 
-    def terminate(self,output,terminationTime):
-        self.output=output
+    def terminate(self, output, terminationTime):
+        self.output = output
         self.terminationTime = terminationTime
-
-    def getDistance(self,other):
-        return self.position.getDistance(other.position)
 
     def getTerminationTime(self):
         return self.terminationTime
 
+
 class FailedNode(Node):
-    def __init__(self,position):
+    def __init__(self, position):
         super().__init__(position)
 
     def onStart(self, simulation):
         pass
+
     def onTimerEvent(self, timerEvent, simulation):
         pass
+
     def onMessageEvent(self, messageEvent, simulation):
         pass
+

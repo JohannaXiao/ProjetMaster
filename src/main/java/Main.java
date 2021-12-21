@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class Main {
   private static final int RANDOM_SEED = 12345;
   private static final double TIME_LIMIT = 4;
-  private static final int SAMPLES = 100;
+  private static final int SAMPLES = 1;
 
   public static void main(String[] args) {
     // Print the first row which contains column names.
@@ -21,11 +21,11 @@ public class Main {
     double mirBestLatency = Double.MAX_VALUE, mirBestTimeout = 0;
     double pbftBestLatency = Double.MAX_VALUE, pbftBestTimeout = 0;
 
-    int NumNodes=100;
-    double initalTimeout = 0.1;
+//    int NumNodes=100;
+//    double initalTimeout = 0.1;
 
-    for (int faliednode = 0; faliednode <= NumNodes; faliednode += 1) {
-//    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
+//    for (int faliednode = 0; faliednode <= NumNodes; faliednode += 1) {
+    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
       DoubleSummaryStatistics tendermintOverallStats = new DoubleSummaryStatistics(),
           algorandOverallStats = new DoubleSummaryStatistics(),
           mirOverallStats = new DoubleSummaryStatistics(),
@@ -38,7 +38,7 @@ public class Main {
 //        Optional<DoubleSummaryStatistics> mirStats =
 //            runMir(initalTimeout, 90, 10);
         Optional<DoubleSummaryStatistics> pbftStats =
-                runPbft(initalTimeout,  NumNodes-faliednode, faliednode);
+                runPbft(initalTimeout,  4, 1);
 
 //        tendermintStats.ifPresent(tendermintOverallStats::combine);
 //        algorandStats.ifPresent(algorandOverallStats::combine);
@@ -67,9 +67,9 @@ public class Main {
         pbftBestTimeout = initalTimeout;
       }
 
-      System.out.printf("%d, %s,\n",
-            faliednode,
-//          initalTimeout,
+      System.out.printf("%.2f, %s,\n",
+//            faliednode,
+          initalTimeout,
 //          tendermintOverallStats.getCount() > 0 ? tendermintOverallStats.getAverage() : "",
 //          algorandOverallStats.getCount() > 0 ? algorandOverallStats.getAverage() : "",
 //          mirOverallStats.getCount() > 0 ? mirOverallStats.getAverage() : "",
