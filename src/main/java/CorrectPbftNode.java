@@ -74,6 +74,8 @@ public class CorrectPbftNode extends Node {
                 Proposal committedProposal = committedProposals.iterator().next();
                 if (committedProposal != null) {
                     terminate(committedProposal, time);
+//                    System.out.printf("terminatedTime = %.10f\n",time);
+
                 }
             }
         } else {

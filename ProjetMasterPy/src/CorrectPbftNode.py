@@ -12,6 +12,7 @@ import EarthPosition
 from Event import *
 from Proposal import Proposal
 from Message import *
+from utils import switch
 from enum import Enum, auto
 from collections import defaultdict
 
@@ -40,21 +41,42 @@ class CorrectPbftNode(Node.Node):
         if time is not self.nextTimer:
             return
 
-        if self.protocolState is ProtocolState.PROPOSAL:
-            self.beginPrePrepare(simulation, time)
-        elif self.protocolState is ProtocolState.PRE_PREPARE:
-            self.beginPrepare(simulation, time)
-        elif self.protocolState is ProtocolState.PREPARE:
-            self.beginCommit(simulation, time)
-        elif self.protocolState is ProtocolState.COMMIT:
-            self.cycle += 1
-            # 不知道此处是否需要
-            #  Exponential backoff.指数退避 / 补偿
-            # TODO: 这里的Exponential backoff不知道对PBFT需不需要
-            self.timeout *= 2
-            self.beginProposal(simulation, time)
-        else:
-            raise AssertionError("Unexpected protocol state")
+        for case in switch(self.protocolState):
+            if case(ProtocolState.PROPOSAL):
+                self.beginPrePrepare(simulation, time)
+                break
+            if case(ProtocolState.PRE_PREPARE):
+                self.beginPrepare(simulation, time)
+                break
+            if case(ProtocolState.PREPARE):
+                self.beginCommit(simulation, time)
+                break
+            if case(ProtocolState.COMMIT):
+                self.cycle += 1
+                # 不知道此处是否需要
+                #  Exponential backoff.指数退避 / 补偿
+                # TODO: 这里的Exponential backoff不知道对PBFT需不需要
+                self.timeout *= 2
+                self.beginProposal(simulation, time)
+                break
+            if case():
+                raise AssertionError("Unexpected protocol state")
+
+        # if self.protocolState is ProtocolState.PROPOSAL:
+        #     self.beginPrePrepare(simulation, time)
+        # elif self.protocolState is ProtocolState.PRE_PREPARE:
+        #     self.beginPrepare(simulation, time)
+        # elif self.protocolState is ProtocolState.PREPARE:
+        #     self.beginCommit(simulation, time)
+        # elif self.protocolState is ProtocolState.COMMIT:
+        #     self.cycle += 1
+        #     # 不知道此处是否需要
+        #     #  Exponential backoff.指数退避 / 补偿
+        #     # TODO: 这里的Exponential backoff不知道对PBFT需不需要
+        #     self.timeout *= 2
+        #     self.beginProposal(simulation, time)
+        # else:
+        #     raise AssertionError("Unexpected protocol state")
 
     def onMessageEvent(self, messageEvent, simulation):
         if self.hasTerminated():
@@ -86,14 +108,14 @@ class CorrectPbftNode(Node.Node):
                 committedProposal = committedProposals.pop()
                 if committedProposal:
                     self.terminate(committedProposal, time)
-                    print("terminatedTime = %.10f" %time)
+                    # print("terminatedTime = %.10f" %time)
         else:
             raise AssertionError("Unexpected message: " + message)
 
     def beginProposal(self, simulation, time):
         self.protocolState = ProtocolState.PROPOSAL
         if self==simulation.getLeader(self.cycle):
-            proposal = Proposal(self, time)
+            proposal = Proposal()
             message = ProposalMessage(self.cycle, proposal)
             simulation.broadcast(self, message, time)
         self.resetTimeout(simulation, time)
@@ -108,7 +130,7 @@ class CorrectPbftNode(Node.Node):
         for prevCycle in range(self.cycle - 1, -1, -1):
             prePrepareProposals = self.getCycleState(prevCycle).getPrePrepareProposals(self, simulation)
             for prePrepareProposal in prePrepareProposals:
-                if prePrepareProposal:
+                if prePrepareProposal is not None:
                     return prePrepareProposal
         currentProposals = self.getCurrentCycleState().proposals
         if currentProposals:
@@ -121,7 +143,7 @@ class CorrectPbftNode(Node.Node):
         self.protocolState = ProtocolState.PREPARE
         prePrepareProposals = self.getCurrentCycleState().getPrePrepareProposals(self, simulation)
         if not prePrepareProposals:
-            message = PrepareMessage(self.cycle, Proposal(self, time))
+            message = PrepareMessage(self.cycle, Proposal())
         else:
             proposal = prePrepareProposals.pop()
             message = PrepareMessage(self.cycle, proposal)
@@ -132,7 +154,7 @@ class CorrectPbftNode(Node.Node):
         self.protocolState = ProtocolState.COMMIT
         PreparedProposals = self.getCurrentCycleState().getPreparedProposals(self, simulation)
         if not PreparedProposals:
-            message = CommitMessage(self.cycle, Proposal(self, time))
+            message = CommitMessage(self.cycle, Proposal())
         else:
             proposal = PreparedProposals.pop()
             message = CommitMessage(self.cycle, proposal)
@@ -148,9 +170,7 @@ class CorrectPbftNode(Node.Node):
         return self.getCycleState(self.cycle)
 
     def getCycleState(self, c):
-        if c in self.cycleStates:
-            pass
-        else:
+        if not c in self.cycleStates:
             self.cycleStates[c] = CycleState()
         return self.cycleStates[c]
 
@@ -158,7 +178,7 @@ class CorrectPbftNode(Node.Node):
 
     def quorumSize(self, simulation):
         nodes = len(simulation.getNetwork().getNodes())
-        return nodes * 2 / 3 + 1
+        return int(nodes * 2 / 3 + 1)
 
 
 class CycleState(object):
@@ -181,6 +201,7 @@ class CycleState(object):
         res = set()
         for k, v in self.prePrepareCounts.items():
             if v >= node.quorumSize(simulation):
+            # if v >= 2:
                 res.add(k)
             else:
                 pass
@@ -193,6 +214,7 @@ class CycleState(object):
         res = set()
         for k, v in self.prepareCounts.items():
             if v >= node.quorumSize(simulation):
+            # if v >= 2:
                 res.add(k)
             else:
                 pass
@@ -202,13 +224,14 @@ class CycleState(object):
         res = set()
         for k, v in self.commitCounts.items():
             if v >= node.quorumSize(simulation):
+            # if v >= 2:
                 res.add(k)
             else:
                 pass
         return res
 
 class ProtocolState(Enum):
-    PROPOSAL = auto()
-    PRE_PREPARE = auto()
-    PREPARE = auto()
-    COMMIT = auto()
+    PROPOSAL = 1
+    PRE_PREPARE = 2
+    PREPARE = 3
+    COMMIT = 4

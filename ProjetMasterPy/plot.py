@@ -12,15 +12,19 @@ import pandas as pd
 import numpy as np
 import csv
 from matplotlib import pyplot as plt
+from scipy import optimize
 
-fileName = '20211220_1537.csv'
+def f_1(x, A, B):
+    return A * x + B
+
+fileName = 'nodenum1000failednode110-140-1Sample50.csv'
 with open(fileName) as f:
     reader = csv.reader(f)
     header_row = next(reader)
 
-    # initial_timeout,tendermint,pbft = [],[],[]
-    initial_timeout,tendermint,algorand,mir = [],[],[],[]
-    # mir=[]
+    # initial_timeout,pbft = [],[]
+    nodenum = []
+    pbft = []
     for row in reader:
         # initial_timeout.append(float(0) if np.isnan(row[0]) else float(row[0]))
         # tendermint.append(float(0) if np.isnan(row[1]) else float(row[1]))
@@ -31,29 +35,54 @@ with open(fileName) as f:
         # algorand.append(float(row[2]))
         # mir.append(float(row[3]))
         # print(type(row))
-        if isinstance(row,list):
-            initial_timeout.append(float(0) if row[0].isspace() else float(row[0]))
-            tendermint.append(float(0) if row[1].isspace() else float(row[1]))
-            algorand.append(float(0) if row[2].isspace() else float(row[2]))
-            mir.append(float(0) if row[3].isspace() else float(row[3]))
-            # pbft.append(float(0) if row[4].isspace() else float(row[4]))
-            # tendermint.append(float(0) if row[1].isspace() else float(row[1]))
-            # pbft.append(float(0) if row[2].isspace() else float(row[2]))
-        # else:
-        #     break
+        if isinstance(row, list):
+            # initial_timeout.append(float(0) if row[0].isspace() else float(row[0]))
+            nodenum.append(float(0) if row[0].isspace() else float(row[0]))
+            pbft.append(float(0) if row[1].isspace() else float(row[1]))
 
+        # else:  #     break
+    # remove outliners
+    # delnode = [100,510,530,590]
+    # delnode_pbft = [1.1129374148370441,1.9679618677117297,1.9436666400509963,1.8723211761908416]
+    # delnode = [250,290]
+    # delnode_pbft = [float(0),1.883966536133234]
+    # for node in delnode:
+    #     nodenum.remove(node)
+    # for i in delnode_pbft:
+    #     pbft.remove(i)
+
+    plt.style.use(['science', 'no-latex'])
     fig = plt.figure(dpi=128, figsize=(10, 6))
-    plt.plot(initial_timeout,tendermint,label='tendermint')
-    plt.scatter(initial_timeout,tendermint)
-    plt.plot(initial_timeout,algorand, label='algorand')
-    plt.plot(initial_timeout,mir,label='mir')
-    # plt.plot(initial_timeout,pbft,label='pbft')
-    # plt.scatter(initial_timeout,pbft)
+    # plt.plot(initial_timeout,tendermint,label='tendermint')
+    # plt.scatter(initial_timeout,tendermint)
+    # plt.plot(initial_timeout,algorand, label='algorand')
+    # plt.plot(initial_timeout,mir,label='mir')
+    plt.plot(nodenum, pbft, '--o', label='pbft')
+    # plt.scatter(nodenum,pbft)
+    plt.grid(linestyle=':')
+    # plt.xlim(xmax=260)
+
+    # 直线拟合与绘制
+    # nodenum1=nodenum[0:260]
+    # pbft1=pbft[0:260]
+    # print(nodenum1)
+    # print(pbft1)
+    # x1=np.arange(0,260,100)
+    # A,B = optimize.curve_fit(f_1,nodenum1,pbft1)[0]
+    # x1=np.arange(0,260,100)
+    # y1=A*x1+B
+    # plt.plot(x1,y1,'y')
+
     # 设置图形的格式
-    plt.title("test", fontsize=24)
-    plt.xlabel('Initial Timeout(seconds)', fontsize=16)
+    plt.title("Number of nodes = 1000", fontsize=12)
+    # plt.xlabel('Initial Timeout(seconds)', fontsize=16)
+    plt.xlabel('Number of failed node', fontsize=16)
     plt.legend()
     plt.ylabel("Termination Time(seconds)", fontsize=16)
     # plt.tick_params(axis='both', which='major', labelsize=16)
     # plt.savefig("temperature.png", bbox_inches='tight')
-    plt.show()
+    # plt.show()
+    plt.savefig("1000-3.png")
+
+
+

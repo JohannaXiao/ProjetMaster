@@ -15,7 +15,7 @@ class Simulation {
             double latency = network.getLatency(source, destination);
             double arrivalTime = time + latency;
 //      记录传播消息事件（依据时间记录，该消息事件中包含 抵达时间，目标节点，消息内容，即针对目标节点的消息事件
-            System.out.printf("time = %.5f, latency = %.5f, arrivalTime = %.5f\n", time, latency, arrivalTime);
+//            System.out.printf("time = %.5f, latency = %.5f, arrivalTime = %.5f\n", time, latency, arrivalTime);
             eventsByTime.add(new MessageEvent(arrivalTime, destination, message));
         }
     }

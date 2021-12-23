@@ -21,7 +21,7 @@ import pprint
 
 RANDOM_SEED = 12345
 TIME_LIMIT = 4
-SAMPLES = 100
+SAMPLES = 1
 
 
 def runPbft(initialTimeout, correctNodeCount, failedNodeCount):
@@ -68,27 +68,29 @@ def runPbft(initialTimeout, correctNodeCount, failedNodeCount):
 
 
 if __name__ == '__main__':
-    print("initial_timeout,pbft")
+    # print("initial_timeout,pbft")
+    print("nodenum,pbft")
+    initialTimeout = 0.12
     pbftBestLatency = sys.float_info.max
     pbftBestTimeout = 0
     pbftOveralStats = []
     # nodes = []
-    for initialTimeout in np.arange(0.01, 0.4, 0.01):
-
+    # for initialTimeout in np.arange(0.01, 0.4, 0.01):
+    for nodenum in range(2,100):
         for i in range(SAMPLES):
-            pbftStats = runPbft(initialTimeout, 4, 1)
+            pbftStats = runPbft(initialTimeout, nodenum, 0)
             if pbftStats:
                 pbftOveralStats.extend(pbftStats)
                 # print(pbftStats)
-        if pbftOveralStats and np.mean(pbftOveralStats) < pbftBestLatency:
-            pbftBestLatency = np.mean(pbftOveralStats)
-            pbftBestTimeout = initialTimeout
+        # if pbftOveralStats and np.mean(pbftOveralStats) < pbftBestLatency:
+        #     pbftBestLatency = np.mean(pbftOveralStats)
+        #     pbftBestTimeout = initialTimeout
 
-        print("%.2f, %s," % (initialTimeout, str(np.mean(pbftOveralStats)) if pbftOveralStats else " "))
+        print("%d, %s," % (nodenum, str(np.mean(pbftOveralStats)) if pbftOveralStats else " "))
         # print(pbftOveralStats)
 
     print("\n")
-    print("pbft best with timeout %.2f: %.4f" % (pbftBestTimeout, pbftBestLatency))
+    # print("pbft best with timeout %.2f: %.4f" % (pbftBestTimeout, pbftBestLatency))
 
     # node1 = Node.Node(position=EarthPosition.EarthPosition(direction=Vector3d(0,0,0)))
     # node2 = Node.Node(position=EarthPosition.EarthPosition(direction=Vector3d(0,0,0)))

@@ -58,11 +58,11 @@ class Simulation:
             if event.getTime() > timelimit:
                 return False
 
-            # subject = event.getSubject()
+            subject = event.getSubject()
             if isinstance(event, TimerEvent):
-                event.getSubject().onTimerEvent(event, self)
+                subject.onTimerEvent(event, self)
             elif isinstance(event, MessageEvent):
-                event.getSubject().onMessageEvent(event, self)
+                subject.onMessageEvent(event, self)
             else:
                 raise AssertionError("Unexpected event:" + event)
 

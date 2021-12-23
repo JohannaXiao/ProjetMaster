@@ -31,6 +31,8 @@ abstract class Node {
   double getTerminationTime() {
     return terminationTime;
   }
+
+  Proposal getOutput(){return output;};
 }
 
 /** A node which has simply failed, and thus ignores all events. */
