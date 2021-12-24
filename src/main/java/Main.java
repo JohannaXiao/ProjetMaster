@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class Main {
     private static final int RANDOM_SEED = 12345;
     private static final double TIME_LIMIT = 4;
-    private static final int SAMPLES = 1;
+    private static final int SAMPLES = 50;
 
     public static void main(String[] args) {
         // Print the first row which contains column names.
@@ -20,16 +20,17 @@ public class Main {
 
         int NumNodes = 1000;
         double initalTimeout = 0.12;
+        double failedNodeRate = 0.1;
 
-        for (int faliednode = 0; faliednode <= NumNodes; faliednode += 10) {
+        for (int nodeNum = 2; nodeNum <= NumNodes; nodeNum += 1) {
 //    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
 //        for (int nodenum = 10; nodenum <= 5000; nodenum += 100) {
             DoubleSummaryStatistics tendermintOverallStats = new DoubleSummaryStatistics(),
                     pbftOverallStats = new DoubleSummaryStatistics();
             for (int i = 0; i < SAMPLES; ++i) {
-
+                int failednode = (int)Math.floor(nodeNum*failedNodeRate);
                 Optional<DoubleSummaryStatistics> pbftStats =
-                        runPbft(initalTimeout, NumNodes - faliednode, faliednode);
+                        runPbft(initalTimeout, nodeNum-failednode,failednode );
 
                 pbftStats.ifPresent(pbftOverallStats::combine);
             }
@@ -41,7 +42,7 @@ public class Main {
             }
 
             System.out.printf("%d, %s,\n",
-                    faliednode,
+                    nodeNum,
 //                  initalTimeout,
 //                    nodenum,
                     pbftOverallStats.getCount() > 0 ? pbftOverallStats.getAverage() : "");
@@ -90,6 +91,7 @@ public class Main {
         return Optional.of(nodes.stream()
                 .mapToDouble(Node::getTerminationTime)
                 .summaryStatistics());
+//        return Optional.of(nodes.stream().mapToDouble(Node::getOutput).summaryStatistics());
     }
 
     private static String statisticsToCompactString(DoubleSummaryStatistics statistics) {
