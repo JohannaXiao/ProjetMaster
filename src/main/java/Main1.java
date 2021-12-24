@@ -6,57 +6,42 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class Main {
+public class Main1 {
     private static final int RANDOM_SEED = 12345;
     private static final double TIME_LIMIT = 4;
     private static final int SAMPLES = 50;
 
     public static void main(String[] args) {
         // Print the first row which contains column names.
-//    System.out.println("initial_timeout, tendermint, algorand, this_work");
-        System.out.println("initial_timeout, tendermint, algorand, mir, pbft");
+        System.out.println(",  pbft");
 
-        double pbftBestLatency = Double.MAX_VALUE, pbftBestTimeout = 0;
+//        double pbftBestLatency = Double.MAX_VALUE;
 
         int NumNodes = 1000;
         double initalTimeout = 0.12;
         double failedNodeRate = 0.2;
 
-        for (int nodeNum = 2; nodeNum <= NumNodes; nodeNum += 1) {
+        for (int nodeNum = 2; nodeNum <= NumNodes; nodeNum += 10) {
+            DoubleSummaryStatistics pbftTimeSamples = new DoubleSummaryStatistics();
 //    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
 //        for (int nodenum = 10; nodenum <= 5000; nodenum += 100) {
-            DoubleSummaryStatistics tendermintOverallStats = new DoubleSummaryStatistics(),
-                    pbftOverallStats = new DoubleSummaryStatistics();
+//            List<Double> pbftTimeSamples = new ArrayList<>();
             for (int i = 0; i < SAMPLES; ++i) {
                 int failednode = (int)Math.floor(nodeNum*failedNodeRate);
-                Optional<DoubleSummaryStatistics> pbftStats =
-                        runPbft(initalTimeout, nodeNum-failednode,failednode );
-
-                pbftStats.ifPresent(pbftOverallStats::combine);
-            }
-
-            if (pbftOverallStats.getCount() > 0 &&
-                    pbftOverallStats.getAverage() < pbftBestLatency) {
-                pbftBestLatency = pbftOverallStats.getAverage();
-                pbftBestTimeout = initalTimeout;
+                double pbftTime = runPbftTimer(initalTimeout, nodeNum-failednode,failednode);
+                pbftTimeSamples.accept(pbftTime);
             }
 
             System.out.printf("%d, %s,\n",
                     nodeNum,
 //                  initalTimeout,
 //                    nodenum,
-                    pbftOverallStats.getCount() > 0 ? pbftOverallStats.getAverage() : "");
+                    pbftTimeSamples.getCount() > 0 ? pbftTimeSamples.getAverage() : "");
         }
 
         System.out.println();
 
-//    System.out.printf("pbft best with timeout %.2f: %.4f\n",
-//        pbftBestTimeout, pbftBestLatency);
-//    System.out.printf("Mir best with timeout %.2f: %.4f\n",
-//            mirBestTimeout, mirBestLatency);
-//    double secondBestLatency = Math.min(tendermintBestLatency, algorandBestLatency);
-//    System.out.printf("Mir speedup: %.4f\n",
-//        (secondBestLatency - mirBestLatency) / secondBestLatency);
+
     }
 
     private static Optional<DoubleSummaryStatistics> runPbft(
@@ -106,13 +91,20 @@ public class Main {
         }
         Collections.shuffle(nodes, random);
 
+        double startTime = System.currentTimeMillis();
         Network network = new FullyConnectedNetwork(nodes, random);
         Simulation simulation = new Simulation(network);
-        double startTime = System.currentTimeMillis();
         if (!simulation.run(TIME_LIMIT)) {
             return Double.NaN;
         }
         double endTime =  System.currentTimeMillis();
+        List<Node> correctNodes = nodes.stream()
+                .filter(n -> n instanceof CorrectPbftNode)
+                .collect(Collectors.toList());
+        if (!correctNodes.stream().allMatch(Node::hasTerminated)) {
+            System.out.println("WARNING: Not all Pbft nodes terminated.");
+            return Double.NaN;
+        }
         return endTime-startTime;
     }
 
@@ -121,3 +113,4 @@ public class Main {
                 statistics.getMin(), statistics.getMax(), statistics.getAverage());
     }
 }
+

@@ -17,7 +17,7 @@ from scipy import optimize
 def f_1(x, A, B):
     return A * x + B
 
-fileName = 'nodenum1000failednode0-1000-10Sample50.csv'
+fileName = 'nodenum2-1000failedRate01TimerSys.csv'
 with open(fileName) as f:
     reader = csv.reader(f)
     header_row = next(reader)
@@ -26,15 +26,6 @@ with open(fileName) as f:
     nodenum = []
     pbft = []
     for row in reader:
-        # initial_timeout.append(float(0) if np.isnan(row[0]) else float(row[0]))
-        # tendermint.append(float(0) if np.isnan(row[1]) else float(row[1]))
-        # algorand.append(float(0) if np.isnan(row[2]) else float(row[2]))
-        # mir.append(float(0) if np.isnan(row[3]) else float(row[3]))
-        # initial_timeout.append(float(row[0]))
-        # tendermint.append(float(row[1]))
-        # algorand.append(float(row[2]))
-        # mir.append(float(row[3]))
-        # print(type(row))
         if isinstance(row, list):
             # initial_timeout.append(float(0) if row[0].isspace() else float(row[0]))
             nodenum.append(float(0) if row[0].isspace() else float(row[0]))
@@ -46,21 +37,24 @@ with open(fileName) as f:
     # delnode_pbft = [1.1129374148370441,1.9679618677117297,1.9436666400509963,1.8723211761908416]
     # delnode = [250,290]
     # delnode_pbft = [float(0),1.883966536133234]
-    # for node in delnode:
-    #     nodenum.remove(node)
-    # for i in delnode_pbft:
-    #     pbft.remove(i)
+    delnode = [442,462,922]
+    delnode_pbft = [float(0),float(0),float(0)]
+    for node in delnode:
+        nodenum.remove(node)
+    for i in delnode_pbft:
+        pbft.remove(i)
 
+    new_pbft = [x / 1000 for x in pbft]
     plt.style.use(['science', 'no-latex'])
     fig = plt.figure(dpi=128, figsize=(10, 6))
     # plt.plot(initial_timeout,tendermint,label='tendermint')
     # plt.scatter(initial_timeout,tendermint)
     # plt.plot(initial_timeout,algorand, label='algorand')
     # plt.plot(initial_timeout,mir,label='mir')
-    plt.plot(nodenum, pbft, '--o', label='pbft')
+    plt.plot(nodenum, new_pbft, '--o', label='pbft')
     # plt.scatter(nodenum,pbft)
     plt.grid(linestyle=':')
-    # plt.xlim(xmax=260)
+    plt.xlim(xmax=1000)
 
     # 直线拟合与绘制
     # nodenum1=nodenum[0:260]
@@ -74,15 +68,17 @@ with open(fileName) as f:
     # plt.plot(x1,y1,'y')
 
     # 设置图形的格式
-    plt.title("Number of nodes = 1000", fontsize=12)
+    plt.title("Rate of FailedNode = 0.1", fontsize=12)
+    # plt.title("Number of nodes = 1000", fontsize=12)
     # plt.xlabel('Initial Timeout(seconds)', fontsize=16)
-    plt.xlabel('Number of failed node', fontsize=16)
+    plt.xlabel('Number of nodes', fontsize=16)
     plt.legend()
+    # plt.ylabel("Termination Time(ms)", fontsize=16)
     plt.ylabel("Termination Time(seconds)", fontsize=16)
     # plt.tick_params(axis='both', which='major', labelsize=16)
     # plt.savefig("temperature.png", bbox_inches='tight')
     # plt.show()
-    plt.savefig("1000-4.png")
+    plt.savefig("SysTime1000-3.png")
 
 
 

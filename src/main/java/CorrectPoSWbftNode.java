@@ -9,29 +9,11 @@ public class CorrectPoSWbftNode extends Node{
     private ProtocolState protocolState;
     private double timeout;
     private double nextTimer;
-    private boolean participeOrNot = false;
+//    private boolean participeOrNot = false;
 
     CorrectPoSWbftNode(EarthPosition position, double initialTimeout) {
         super(position);
         this.timeout = initialTimeout;
-    }
-
-    public boolean getParticipeOrNot(){
-        return this.participeOrNot;
-    }
-    public void defParticipeOrNot(boolean x){
-        this.participeOrNot = x;
-    }
-
-
-    public double[] runPosTime(Job job){
-        double startTime = System.currentTimeMillis();
-        while (true){
-            if(job.Run()){
-                double endTime = System.currentTimeMillis();
-                return new double[]{startTime,endTime,endTime-startTime};
-            }
-        }
     }
 
     @Override public void onStart(Simulation simulation) {

@@ -1,4 +1,7 @@
+import java.util.Collections;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 class Simulation {
     private final Network network;
@@ -65,4 +68,5 @@ class Simulation {
 
         return true;
     }
+
 }

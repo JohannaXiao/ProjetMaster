@@ -1,10 +1,43 @@
-abstract class Node {
+import java.lang.Double;
+
+abstract class Node implements Comparable<Node>{
   private final EarthPosition position;
   private Proposal output;
   private double terminationTime;
+//  private boolean participeOrNot = false;
+  private double PosStartTime = 0;
+  private double PosEndTime = 0;
+  private double PosDuration = 0;
 
   Node(EarthPosition position) {
     this.position = position;
+  }
+
+//  public boolean getParticipeOrNot(){
+//    return this.participeOrNot;
+//  }
+//  public void defParticipeOrNot(boolean x){
+//    this.participeOrNot = x;
+//  }
+  public double getPosStartTime(){return this.PosStartTime;}
+  public double getPosEndTime(){return this.PosEndTime;}
+  public double getPosDuration(){return this.PosDuration;}
+
+  public void runPosTime(Job job){
+    double startTime = System.currentTimeMillis();
+      if(job.Run()){
+        double endTime = System.currentTimeMillis();
+        this.PosStartTime = startTime;
+        this.PosEndTime = endTime;
+        this.PosDuration = endTime-startTime;
+    }
+  }
+
+  public int compareTo(Node node){
+    if (this.PosDuration== node.PosDuration){
+      return Double.compare(this.PosEndTime, node.PosEndTime);
+    }
+    return Double.compare(this.PosDuration, node.PosDuration);
   }
 
   abstract void onStart(Simulation simulation);

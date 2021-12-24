@@ -7,7 +7,6 @@ public class CorrectDposNode extends Node {
     private int cycle = 0;
     private double timeout;
     private double nextTimer;
-    private int participeOrNot = 0;
 
     CorrectDposNode(EarthPosition position, double initialTimeout) {
         super(position);
