@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class Main {
     private static final int RANDOM_SEED = 12345;
     private static final double TIME_LIMIT = 4;
-    private static final int SAMPLES = 50;
+    private static final int SAMPLES = 1;
 
     public static void main(String[] args) {
         // Print the first row which contains column names.
@@ -21,7 +21,7 @@ public class Main {
         int NumNodes = 1000;
         double initalTimeout = 0.12;
 
-        for (int faliednode = 110; faliednode <= 140; faliednode += 1) {
+        for (int faliednode = 0; faliednode <= NumNodes; faliednode += 10) {
 //    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
 //        for (int nodenum = 10; nodenum <= 5000; nodenum += 100) {
             DoubleSummaryStatistics tendermintOverallStats = new DoubleSummaryStatistics(),

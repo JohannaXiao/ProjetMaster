@@ -17,7 +17,7 @@ from scipy import optimize
 def f_1(x, A, B):
     return A * x + B
 
-fileName = 'nodenum1000failednode110-140-1Sample50.csv'
+fileName = 'nodenum1000failednode0-1000-10Sample50.csv'
 with open(fileName) as f:
     reader = csv.reader(f)
     header_row = next(reader)
@@ -82,7 +82,7 @@ with open(fileName) as f:
     # plt.tick_params(axis='both', which='major', labelsize=16)
     # plt.savefig("temperature.png", bbox_inches='tight')
     # plt.show()
-    plt.savefig("1000-3.png")
+    plt.savefig("1000-4.png")
 
 
 
