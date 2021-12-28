@@ -5,9 +5,9 @@ abstract class Node implements Comparable<Node>{
   private Proposal output;
   private double terminationTime;
 //  private boolean participeOrNot = false;
-  private double PosStartTime = 0;
-  private double PosEndTime = 0;
-  private double PosDuration = 0;
+  private double PosStartTime = Double.NaN;
+  private double PosEndTime = Double.NaN;
+  private double PosDuration = Double.NaN;
 
   Node(EarthPosition position) {
     this.position = position;
@@ -22,14 +22,17 @@ abstract class Node implements Comparable<Node>{
   public double getPosStartTime(){return this.PosStartTime;}
   public double getPosEndTime(){return this.PosEndTime;}
   public double getPosDuration(){return this.PosDuration;}
+  public void defPosStartTime(double startTime){
+
+  }
 
   public void runPosTime(Job job){
     double startTime = System.currentTimeMillis();
       if(job.Run()){
         double endTime = System.currentTimeMillis();
-        this.PosStartTime = startTime;
-        this.PosEndTime = endTime;
-        this.PosDuration = endTime-startTime;
+        PosStartTime = startTime;
+        PosEndTime = endTime;
+        PosDuration = endTime-startTime;
     }
   }
 

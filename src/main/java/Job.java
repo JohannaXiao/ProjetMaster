@@ -2,7 +2,7 @@ import java.util.Random;
 
 public class Job extends Object {
     private double condition = 0;
-    private double MAX = 1000;
+    private double MAX = 10000;
 
     Job(double condition) {
         this.condition = condition;

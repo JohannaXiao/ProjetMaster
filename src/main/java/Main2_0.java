@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class Main2 {
+public class Main2_0 {
     private static final int RANDOM_SEED = 12345;
     private static final double TIME_LIMIT = 4;
     private static final int SAMPLES = 50;
@@ -20,24 +20,24 @@ public class Main2 {
 
         int NumNodes = 1000;
         double initalTimeout = 0.12;
-        double failedNodeRate = 0.15;
+//        double failedNodeRate = 0.1;
 
-        for (int nodeNum = 2; nodeNum <= NumNodes; nodeNum += 10) {
-//        for (int failednode = 0; failednode <= NumNodes; failednode += 10) {
+//        for (int nodeNum = 2; nodeNum <= NumNodes; nodeNum += 10) {
+        for (int failednode = 0; failednode <= NumNodes; failednode += 10) {
             DoubleSummaryStatistics PoSWbftTimeSamples = new DoubleSummaryStatistics();
 //    for (double initalTimeout = 0.01; initalTimeout <= 0.4; initalTimeout += 0.01) {
 //        for (int nodenum = 10; nodenum <= 5000; nodenum += 100) {
             for (int i = 0; i < SAMPLES; ++i) {
-                int failednode = (int)Math.floor(nodeNum*failedNodeRate);
-                Double PoSWbftTime = runPoSWbftTimer(initalTimeout, nodeNum-failednode,failednode);
-                PoSWbftTimeSamples.accept(PoSWbftTime);
-//                PoSWbftTime.ifPresent(PoSWbftTimeSamples::accept);
+//                int failednode = (int)Math.floor(nodeNum*failedNodeRate);
+                Optional<Double> PoSWbftTime = runPoSWbftTimer(initalTimeout, NumNodes-failednode,failednode);
+//                PoSWbftTimeSamples.accept(PoSWbftTime);
+                PoSWbftTime.ifPresent(PoSWbftTimeSamples::accept);
             }
 
             System.out.printf("%d, %s,\n",
-//                    failednode,
+                    failednode,
 //                  initalTimeout,
-                    nodeNum,
+//                    nodeNum,
                     PoSWbftTimeSamples.getCount() > 0 ? PoSWbftTimeSamples.getAverage() : "");
         }
 
@@ -45,7 +45,7 @@ public class Main2 {
 
     }
 
-    private static Double runPoSWbftTimer(
+    private static Optional<Double> runPoSWbftTimer(
             double initialTimeout, int correctNodeCount, int failedNodeCount) {
         Random random = new Random();
         List<Node> nodes = new ArrayList<>();
@@ -75,7 +75,7 @@ public class Main2 {
         Network network = new FullyConnectedNetwork(selectedNodes, random);
         Simulation simulation = new Simulation(network);
         if (!simulation.run(TIME_LIMIT)) {
-            return Double.NaN;
+            return Optional.empty();
         }
         double endTime =  System.currentTimeMillis();
         List<Node> correctNodes = selectedNodes.stream()
@@ -83,9 +83,9 @@ public class Main2 {
                 .collect(Collectors.toList());
         if (!correctNodes.stream().allMatch(Node::hasTerminated)) {
             System.out.println("WARNING: Not all nodes terminated.");
-            return Double.NaN;
+            return Optional.empty();
         }
-        return endTime-startTime;
+        return Optional.of(endTime-startTime);
     }
     private static String statisticsToCompactString(DoubleSummaryStatistics statistics) {
         return String.format("min=%.2f, max=%.2f, average=%.2f",

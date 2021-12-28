@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class Main1 {
+public class Main1_0 {
     private static final int RANDOM_SEED = 12345;
     private static final double TIME_LIMIT = 4;
     private static final int SAMPLES = 50;
@@ -29,9 +29,9 @@ public class Main1 {
             DoubleSummaryStatistics pbftTimeSamples = new DoubleSummaryStatistics();
             for (int i = 0; i < SAMPLES; ++i) {
 //                int failednode = (int)Math.floor(nodeNum*failedNodeRate);
-                Double pbftTime = runPbftTimer(initalTimeout, NumNodes-failednode,failednode);
-                pbftTimeSamples. accept(pbftTime);
-//                pbftTime.ifPresent(pbftTimeSamples::accept);
+                Optional<Double> pbftTime = runPbftTimer(initalTimeout, NumNodes-failednode,failednode);
+//                pbftTimeSamples. accept(pbftTime);
+                pbftTime.ifPresent(pbftTimeSamples::accept);
             }
 
             System.out.printf("%d, %s,\n",
@@ -78,7 +78,7 @@ public class Main1 {
                 .summaryStatistics());
 //        return Optional.of(nodes.stream().mapToDouble(Node::getOutput).summaryStatistics());
     }
-    private static Double runPbftTimer(
+    private static Optional<Double> runPbftTimer(
             double initialTimeout, int correctNodeCount, int failedNodeCount) {
         Random random = new Random();
         List<Node> nodes = new ArrayList<>();
@@ -96,7 +96,7 @@ public class Main1 {
         Network network = new FullyConnectedNetwork(nodes, random);
         Simulation simulation = new Simulation(network);
         if (!simulation.run(TIME_LIMIT)) {
-            return Double.NaN;
+            return Optional.empty();
         }
         double endTime =  System.currentTimeMillis();
         List<Node> correctNodes = nodes.stream()
@@ -104,10 +104,10 @@ public class Main1 {
                 .collect(Collectors.toList());
         if (!correctNodes.stream().allMatch(Node::hasTerminated)) {
             System.out.println("WARNING: Not all Pbft nodes terminated.");
-            return Double.NaN;
+            return Optional.empty();
 
         }
-        return endTime-startTime;
+        return Optional.of(endTime-startTime);
     }
 
     private static String statisticsToCompactString(DoubleSummaryStatistics statistics) {
