@@ -69,6 +69,8 @@ abstract class Node implements Comparable<Node>{
   }
 
   Proposal getOutput(){return output;};
+
+  abstract boolean addBlock(Block block);
 }
 
 /** A node which has simply failed, and thus ignores all events. */
@@ -87,6 +89,11 @@ class FailedNode extends Node {
 
   @Override public void onMessageEvent(MessageEvent messageEvent, Simulation simulation) {
     // No-op.
+  }
+
+  @Override public boolean addBlock(Block block) {
+    // No-op.
+    return false;
   }
 }
 

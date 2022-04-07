@@ -2,6 +2,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CorrectPoSWbftNode extends Node{
     private int cycle = 0;
@@ -10,6 +12,7 @@ public class CorrectPoSWbftNode extends Node{
     private double timeout;
     private double nextTimer;
 //    private boolean participeOrNot = false;
+    private CopyOnWriteArrayList<Block> blockChain = new CopyOnWriteArrayList<>();
 
     CorrectPoSWbftNode(EarthPosition position, double initialTimeout) {
         super(position);
@@ -74,6 +77,7 @@ public class CorrectPoSWbftNode extends Node{
             if (!committedProposals.isEmpty()) {
                 Proposal committedProposal = committedProposals.iterator().next();
                 if (committedProposal != null) {
+                    addBlock(message.getProposal().getBlock());
                     terminate(committedProposal, time);
 //                    System.out.printf("terminatedTime = %.10f\n",time);
 
@@ -82,6 +86,15 @@ public class CorrectPoSWbftNode extends Node{
         } else {
             throw new AssertionError("Unexpected message: " + message);
         }
+    }
+
+    //add block
+    public boolean addBlock(Block blcok){
+        if (isValidNewBlock(blcok)) {
+            blockChain.add(blcok);
+            return true;
+        }
+        return false;
     }
 
     //类似与Algorand里的startProposal
@@ -201,5 +214,51 @@ public class CorrectPoSWbftNode extends Node{
 
     private enum ProtocolState {
         PROPOSAL, PRE_PREPARE, PREPARE, COMMIT
+    }
+    //创建区块
+    public Block createNewBlock() {
+        Block block = new Block();
+        block.setIndex(blockChain.size());
+        //时间戳
+        block.setTimestamp(System.currentTimeMillis());
+        block.setTransactions(new ArrayList<Transaction>());
+
+        //上一区块的哈希
+        block.setPreviousHash(Util.SHA256(blockChain.isEmpty()?"123":blockChain.get(blockChain.size()-1).toString()));
+//        System.out.println("区块数:"+ blockChain.size()+";createBlock:"+block);
+        return block;
+    }
+
+
+
+    private boolean isValidNewBlock(Block block){
+        if(blockChain.isEmpty()){
+            return true;
+        }else {
+            Block previousBlock = blockChain.get(blockChain.size()-1);
+            if (!Util.SHA256(previousBlock.toString()).equals(block.getPreviousHash())) {
+//                System.out.println("新区块的前一个区块hash验证不通过,上一个区块的hash应该为："+ Util.SHA256(previousBlock.toString()) +";这一个区块上一个区块hash为"+ block.getPreviousHash());
+                return false;
+            }
+        }
+        return  true;
+    }
+
+    private boolean isValidProposal(ProposalMessage proposalMessage){
+        if(isValidNewBlock(proposalMessage.getProposal().getBlock())) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public CopyOnWriteArrayList<Block> getBlockChain() {
+        return blockChain;
+    }
+
+    public Block getLastBlock() {
+        if(blockChain.isEmpty()) return null;
+        return blockChain.get(blockChain.size()-1);
     }
 }

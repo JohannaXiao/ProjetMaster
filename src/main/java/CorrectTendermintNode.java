@@ -39,7 +39,7 @@ class CorrectTendermintNode extends Node {
         beginPreCommit(simulation, time);
         break;
       case PRE_COMMIT:
-        ++cycle;
+//        ++cycle;
         // Exponential backoff.指数退避/补偿
         timeout *= 2;
         beginProposal(simulation, time);
